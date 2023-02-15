@@ -3,8 +3,8 @@ nginx-easy-context
 
 Free persistent request contexts. *Free* means that they are not bound to the
 Nginx request object and their number is not anyhow restricted. *Persistent*
-means that they are not cleared upon internal redirects like the normal Nginx
-request context.
+means that they are not cleared upon internal redirections like the normal
+Nginx request context.
 
 Build
 -----

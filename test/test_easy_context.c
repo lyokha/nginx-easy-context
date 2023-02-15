@@ -18,7 +18,6 @@ typedef struct {
     ngx_http_easy_ctx_handle_t  ctx1;
     ngx_http_easy_ctx_handle_t  ctx2;
 } test_easy_ctx_main_conf_t;
-#include "ngx_easy_context.h"
 
 
 typedef struct {

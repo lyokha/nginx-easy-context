@@ -12,8 +12,6 @@
  */
 
 #include "ngx_easy_context.h"
-#include "ngx_config.h"
-#include "ngx_http_variables.h"
 
 
 static ngx_int_t ngx_http_easy_ctx_handler(ngx_http_request_t *r,
@@ -69,8 +67,8 @@ ngx_http_register_easy_ctx(ngx_conf_t *cf, ngx_module_t *module,
 
 
 static ngx_int_t
-ngx_http_easy_ctx_handler(ngx_http_request_t *r, ngx_http_variable_value_t *v,
-                          uintptr_t data)
+ngx_http_easy_ctx_handler(ngx_http_request_t *r,
+                          ngx_http_variable_value_t *v, uintptr_t data)
 {
     ngx_uint_t  ctx_index = data;
     uintptr_t   r_ctx;

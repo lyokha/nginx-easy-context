@@ -24,8 +24,8 @@ typedef struct {
 } ngx_http_easy_ctx_handle_t;
 
 
-ngx_int_t ngx_http_register_easy_ctx(ngx_conf_t *cf, ngx_module_t *module,
-    ngx_http_easy_ctx_handle_t *handle);
+ngx_int_t ngx_http_register_easy_ctx(ngx_conf_t *cf,
+    ngx_module_t *module, ngx_http_easy_ctx_handle_t *handle);
 ngx_int_t ngx_http_set_easy_ctx(ngx_http_request_t *r,
     ngx_http_easy_ctx_handle_t *handle, void *ctx);
 void * ngx_http_get_easy_ctx(ngx_http_request_t *r,

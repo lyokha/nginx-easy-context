@@ -4,10 +4,10 @@ ngx_module_type=HTTP
 ngx_module_name=$ngx_addon_name
 ngx_module_incs="$ngx_easy_context_dir"
 
-NGX_HTTP_LOG_PLUGIN_DEPS="$ngx_easy_context_dir/ngx_easy_context.h"
-NGX_HTTP_LOG_PLUGIN_SRCS="$ngx_addon_dir/$ngx_addon_name.c"
-ngx_module_srcs="$NGX_HTTP_LOG_PLUGIN_SRCS"
-ngx_module_deps="$NGX_HTTP_LOG_PLUGIN_DEPS"
+NGX_HTTP_TEST_EASY_CONTEXT_DEPS="$ngx_easy_context_dir/ngx_easy_context.h"
+NGX_HTTP_TEST_EASY_CONTEXT_SRCS="$ngx_addon_dir/$ngx_addon_name.c"
+ngx_module_deps="$NGX_HTTP_TEST_EASY_CONTEXT_DEPS"
+ngx_module_srcs="$NGX_HTTP_TEST_EASY_CONTEXT_SRCS"
 
 . auto/module
 
