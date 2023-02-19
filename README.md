@@ -10,7 +10,7 @@ upon internal redirections unlike the normal Nginx request context.
 API
 ---
 
-##### Register a request context handle
+#### Register a request context handle
 
 ```c
 ngx_int_t ngx_http_register_easy_ctx(ngx_conf_t *cf,
@@ -60,7 +60,7 @@ test_easy_ctx_init(ngx_conf_t *cf)
 }
 ```
 
-##### Set a request context
+#### Set a request context
 
 ```c
 ngx_int_t ngx_http_set_easy_ctx(ngx_http_request_t *r,
@@ -91,7 +91,7 @@ except it expects a registered context handle rather than a `module`.
     }
 ```
 
-##### Get a request context
+#### Get a request context
 
 ```c
 void *ngx_http_get_easy_ctx(ngx_http_request_t *r,
