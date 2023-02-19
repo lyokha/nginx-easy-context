@@ -114,6 +114,6 @@ ngx_http_get_easy_ctx(ngx_http_request_t *r,
         return NULL;
     }
 
-    return (void*) v->data;
+    return (void *) v->data;
 }
 

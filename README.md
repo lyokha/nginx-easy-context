@@ -1,10 +1,116 @@
 nginx-easy-context
 ==================
 
-Free persistent request contexts. *Free* means that they are not bound to the
-Nginx request object and their number is not anyhow restricted. *Persistent*
-means that they are not cleared upon internal redirections like the normal
-Nginx request context.
+Free persistent request contexts.
+
+*Free* means that they are not bound to the Nginx request object and their
+number is not anyhow restricted. *Persistent* means that they are not cleared
+upon internal redirections unlike the normal Nginx request context.
+
+API
+---
+
+##### Register a request context handle
+
+```c
+ngx_int_t ngx_http_register_easy_ctx(ngx_conf_t *cf,
+    ngx_module_t *module, ngx_http_easy_ctx_handle_t *handle);
+```
+
+Registering a context handle means creation of a handle for using it when
+setting and getting a request context during the lifetime of a request. The
+best place for registering a context handle is the module's postconfiguration
+handler. The best place for storing a context handle is the module's main
+configuration.
+
+###### Example (module *test_easy_context*)
+
+```c
+typedef struct {
+    ngx_http_easy_ctx_handle_t  ctx1;
+    ngx_http_easy_ctx_handle_t  ctx2;
+} test_easy_ctx_main_conf_t;
+
+static ngx_http_module_t  test_easy_context_ctx = {
+    // ---
+    test_easy_ctx_init,                    /* postconfiguration */
+    // ---
+};
+
+static ngx_int_t
+test_easy_ctx_init(ngx_conf_t *cf)
+{
+    test_easy_ctx_main_conf_t  *mcf;
+
+    mcf = ngx_http_conf_get_module_main_conf(cf, test_easy_context);
+
+    if (ngx_http_register_easy_ctx(cf, &test_easy_context, &mcf->ctx1)
+        == NGX_ERROR)
+    {
+        return NGX_ERROR;
+    }
+
+    if (ngx_http_register_easy_ctx(cf, &test_easy_context, &mcf->ctx2)
+        == NGX_ERROR)
+    {
+        return NGX_ERROR;
+    }
+
+    return NGX_OK;
+}
+```
+
+##### Set a request context
+
+```c
+ngx_int_t ngx_http_set_easy_ctx(ngx_http_request_t *r,
+    ngx_http_easy_ctx_handle_t *handle, void *ctx);
+```
+
+This function is a direct equivalent to `ngx_http_set_ctx(r, ctx, module)`
+except it expects a registered context handle rather than a `module`.
+
+###### Example
+
+```c
+    test_easy_ctx_main_conf_t  *mcf;
+    ngx_str_t                  *ctx1;
+
+    ctx1 = ngx_palloc(r->connection->pool, sizeof(ngx_str_t));
+    if (ctx1 == NULL) {
+        return NGX_ERROR;
+    }
+
+    ctx1->data = (u_char *) "This is request context";
+    ctx1->len = ngx_strlen(ctx1->data);
+
+    mcf = ngx_http_get_module_main_conf(r, test_easy_context);
+
+    if (ngx_http_set_easy_ctx(r, &mcf->ctx1, ctx1) == NGX_ERROR) {
+        return NGX_ERROR;
+    }
+```
+
+##### Get a request context
+
+```c
+void *ngx_http_get_easy_ctx(ngx_http_request_t *r,
+    ngx_http_easy_ctx_handle_t *handle);
+```
+
+This function is a direct equivalent to `ngx_http_get_module_ctx(r, module)`
+except it expects a registered context handle rather than a `module`.
+
+###### Example
+
+```c
+    test_easy_ctx_main_conf_t  *mcf;
+    ngx_str_t                  *value;
+
+    mcf = ngx_http_get_module_main_conf(r, test_easy_context);
+
+    value = ngx_http_get_easy_ctx(r, &mcf->ctx1);
+```
 
 Build
 -----
@@ -19,9 +125,10 @@ $ make
 Test
 ----
 
-There is a simple test module that creates two free request contexts and one
-normal Nginx request context in directive *test_easy_context*. All the contexts
-hold Nginx strings with simple text messages.
+In module *test_easy_context* located in directory *test/*, two free request
+contexts and one normal Nginx request context are created by running directive
+*test_easy_context*. All the contexts hold Nginx strings with simple text
+messages.
 
 The module is built from the Nginx source directory.
 
@@ -68,8 +175,8 @@ http {
 }
 ```
 
-After internal redirection via *error_page*, the normal request context must be
-cleared while the two free request contexts must still be alive.
+After internal redirection via *error_page*, the normal request context must
+have been cleared while the two free request contexts must still be alive.
 
 Test this.
 

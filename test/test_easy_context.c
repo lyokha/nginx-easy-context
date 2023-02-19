@@ -203,10 +203,10 @@ test_easy_ctx_rewrite_phase_handler(ngx_http_request_t *r)
         return NGX_ERROR;
     }
 
-    ctx1->data = (u_char*) "This is request context";
+    ctx1->data = (u_char *) "This is request context";
     ctx1->len = ngx_strlen(ctx1->data);
 
-    ctx2->data = (u_char*) "This is context 2";
+    ctx2->data = (u_char *) "This is context 2";
     ctx2->len = ngx_strlen(ctx2->data);
 
     ngx_http_set_ctx(r, ctx1, test_easy_context);
