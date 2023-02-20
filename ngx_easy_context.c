@@ -23,30 +23,21 @@ ngx_http_register_easy_ctx(ngx_conf_t *cf, ngx_module_t *module,
                            ngx_http_easy_ctx_handle_t *handle)
 {
     ngx_http_variable_t     *v;
-    ngx_str_t               *v_name;
-    u_char                  *v_name_buf;
+    ngx_str_t                v_name;
     ngx_int_t                v_index;
-    size_t                   len;
 
     static const ngx_str_t   v_prefix = ngx_string("_easy_ctx_");
     static ngx_uint_t        count = 0;
 
-    v_name = ngx_palloc(cf->pool, sizeof(ngx_str_t));
-    if (v_name == NULL) {
+    v_name.data = ngx_pnalloc(cf->pool, v_prefix.len + NGX_INT_T_LEN);
+    if (v_name.data == NULL) {
         return NGX_ERROR;
     }
 
-    v_name_buf = ngx_pnalloc(cf->pool, v_prefix.len + NGX_INT_T_LEN);
-    if (v_name_buf == NULL) {
-        return NGX_ERROR;
-    }
+    v_name.len = ngx_sprintf(v_name.data, "%V%ui", &v_prefix, count++) -
+            v_name.data;
 
-    len = ngx_sprintf(v_name_buf, "%V%ui", &v_prefix, count++) - v_name_buf;
-
-    v_name->data = v_name_buf;
-    v_name->len = len;
-
-    v = ngx_http_add_variable(cf, v_name, NGX_HTTP_VAR_NOHASH);
+    v = ngx_http_add_variable(cf, &v_name, NGX_HTTP_VAR_NOHASH);
     if (v == NULL) {
         return NGX_ERROR;
     }
@@ -54,7 +45,7 @@ ngx_http_register_easy_ctx(ngx_conf_t *cf, ngx_module_t *module,
     v->data = (uintptr_t) module->ctx_index;
     v->get_handler = ngx_http_easy_ctx_handler;
 
-    v_index = ngx_http_get_variable_index(cf, v_name);
+    v_index = ngx_http_get_variable_index(cf, &v_name);
     if (v_index == NGX_ERROR) {
         return NGX_ERROR;
     }
@@ -75,7 +66,7 @@ ngx_http_easy_ctx_handler(ngx_http_request_t *r,
 
     r_ctx = (uintptr_t) r->ctx[ctx_index];
 
-    v->len = sizeof(uintptr_t);
+    v->len = 0;
     v->data = (u_char *) r_ctx;
     v->valid = 1;
     v->no_cacheable = 0;

@@ -25,6 +25,12 @@ typedef struct {
 } test_easy_ctx_loc_conf_t;
 
 
+typedef struct {
+    ngx_int_t  index;
+    ngx_str_t  value;
+} test_easy_ctx_ctx_t;
+
+
 static ngx_int_t test_easy_ctx_add_vars(ngx_conf_t *cf);
 static void *test_easy_ctx_create_main_conf(ngx_conf_t *cf);
 static void *test_easy_ctx_create_loc_conf(ngx_conf_t *cf);
@@ -184,8 +190,8 @@ test_easy_ctx_rewrite_phase_handler(ngx_http_request_t *r)
 {
     test_easy_ctx_main_conf_t  *mcf;
     test_easy_ctx_loc_conf_t   *lcf;
-    ngx_str_t                  *ctx1;
-    ngx_str_t                  *ctx2;
+    test_easy_ctx_ctx_t        *ctx1;
+    test_easy_ctx_ctx_t        *ctx2;
 
     lcf = ngx_http_get_module_loc_conf(r, test_easy_context);
 
@@ -193,21 +199,21 @@ test_easy_ctx_rewrite_phase_handler(ngx_http_request_t *r)
         return NGX_DECLINED;
     }
 
-    ctx1 = ngx_palloc(r->connection->pool, sizeof(ngx_str_t));
+    ctx1 = ngx_pcalloc(r->connection->pool, sizeof(test_easy_ctx_ctx_t));
     if (ctx1 == NULL) {
         return NGX_ERROR;
     }
 
-    ctx2 = ngx_palloc(r->connection->pool, sizeof(ngx_str_t));
+    ctx2 = ngx_pcalloc(r->connection->pool, sizeof(test_easy_ctx_ctx_t));
     if (ctx2 == NULL) {
         return NGX_ERROR;
     }
 
-    ctx1->data = (u_char *) "This is request context";
-    ctx1->len = ngx_strlen(ctx1->data);
+    ctx1->value.data = (u_char *) "This is request context";
+    ctx1->value.len = ngx_strlen(ctx1->value.data);
 
-    ctx2->data = (u_char *) "This is context 2";
-    ctx2->len = ngx_strlen(ctx2->data);
+    ctx2->value.data = (u_char *) "This is context 2";
+    ctx2->value.len = ngx_strlen(ctx2->value.data);
 
     ngx_http_set_ctx(r, ctx1, test_easy_context);
 
@@ -230,30 +236,30 @@ test_easy_ctx_var(ngx_http_request_t *r, ngx_http_variable_value_t *v,
                   uintptr_t data)
 {
     test_easy_ctx_main_conf_t  *mcf;
-    ngx_str_t                  *value = NULL;
+    test_easy_ctx_ctx_t        *ctx = NULL;
 
     mcf = ngx_http_get_module_main_conf(r, test_easy_context);
 
     switch (data) {
     case 0:
-        value = ngx_http_get_module_ctx(r, test_easy_context);
+        ctx = ngx_http_get_module_ctx(r, test_easy_context);
         break;
     case 1:
-        value = ngx_http_get_easy_ctx(r, &mcf->ctx1);
+        ctx = ngx_http_get_easy_ctx(r, &mcf->ctx1);
         break;
     case 2:
-        value = ngx_http_get_easy_ctx(r, &mcf->ctx2);
+        ctx = ngx_http_get_easy_ctx(r, &mcf->ctx2);
         break;
     default:
         break;
     }
 
-    if (value == NULL) {
+    if (ctx == NULL) {
         return NGX_ERROR;
     }
 
-    v->len          = value->len;
-    v->data         = value->data;
+    v->len          = ctx->value.len;
+    v->data         = ctx->value.data;
     v->valid        = 1;
     v->no_cacheable = 0;
     v->not_found    = 0;

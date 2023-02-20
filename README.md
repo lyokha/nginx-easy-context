@@ -5,7 +5,9 @@ Free persistent request contexts.
 
 *Free* means that they are not bound to the Nginx request object and their
 number is not anyhow restricted. *Persistent* means that they are not cleared
-upon internal redirections unlike the normal Nginx request context.
+upon internal redirections *unlike* the normal Nginx request context. Note that
+*like* the normal Nginx request context, free contexts are not shared between
+the main request and its subrequests.
 
 API
 ---
@@ -30,6 +32,11 @@ typedef struct {
     ngx_http_easy_ctx_handle_t  ctx1;
     ngx_http_easy_ctx_handle_t  ctx2;
 } test_easy_ctx_main_conf_t;
+
+typedef struct {
+    ngx_int_t  index;
+    ngx_str_t  value;
+} test_easy_ctx_ctx_t;
 
 static ngx_http_module_t  test_easy_context_ctx = {
     // ---
@@ -74,15 +81,15 @@ except it expects a registered context handle rather than a `module`.
 
 ```c
     test_easy_ctx_main_conf_t  *mcf;
-    ngx_str_t                  *ctx1;
+    test_easy_ctx_ctx_t        *ctx1;
 
-    ctx1 = ngx_palloc(r->connection->pool, sizeof(ngx_str_t));
+    ctx1 = ngx_pcalloc(r->connection->pool, sizeof(test_easy_ctx_ctx_t));
     if (ctx1 == NULL) {
         return NGX_ERROR;
     }
 
-    ctx1->data = (u_char *) "This is request context";
-    ctx1->len = ngx_strlen(ctx1->data);
+    ctx1->value.data = (u_char *) "This is request context";
+    ctx1->value.len = ngx_strlen(ctx1->data);
 
     mcf = ngx_http_get_module_main_conf(r, test_easy_context);
 
@@ -105,11 +112,11 @@ except it expects a registered context handle rather than a `module`.
 
 ```c
     test_easy_ctx_main_conf_t  *mcf;
-    ngx_str_t                  *value;
+    test_easy_ctx_ctx_t        *ctx1;
 
     mcf = ngx_http_get_module_main_conf(r, test_easy_context);
 
-    value = ngx_http_get_easy_ctx(r, &mcf->ctx1);
+    ctx1 = ngx_http_get_easy_ctx(r, &mcf->ctx1);
 ```
 
 Build
@@ -128,7 +135,7 @@ Test
 In module *test_easy_context* located in directory *test/*, two free request
 contexts and one normal Nginx request context are created by running directive
 *test_easy_context*. All the contexts hold Nginx strings with simple text
-messages.
+messages that will be sent in the response.
 
 The module is built from the Nginx source directory.
 
@@ -178,7 +185,7 @@ http {
 After internal redirection via *error_page*, the normal request context must
 have been cleared while the two free request contexts must still be alive.
 
-Test this.
+Let's test this.
 
 ```ShellSession
 $ curl 'http://127.0.0.1:8010/'
