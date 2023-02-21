@@ -68,7 +68,7 @@ ngx_http_easy_ctx_handler(ngx_http_request_t *r,
 
     v->len = 0;
     v->data = (u_char *) r_ctx;
-    v->valid = 1;
+    v->valid = r_ctx == 0 ? 0 : 1;
     v->no_cacheable = 0;
     v->not_found = 0;
 
@@ -82,6 +82,9 @@ ngx_http_set_easy_ctx(ngx_http_request_t *r,
 {
     ngx_http_variable_value_t  *v;
     void                       *cur_ctx;
+
+    v = &r->variables[handle->var_index];
+    v->no_cacheable = 1;
 
     cur_ctx = r->ctx[handle->ctx_index];
     r->ctx[handle->ctx_index] = ctx;
@@ -99,8 +102,15 @@ ngx_http_get_easy_ctx(ngx_http_request_t *r,
                       ngx_http_easy_ctx_handle_t *handle)
 {
     ngx_http_variable_value_t  *v;
+    void                       *cur_ctx;
+
+    cur_ctx = r->ctx[handle->ctx_index];
+    r->ctx[handle->ctx_index] = NULL;
 
     v = ngx_http_get_indexed_variable(r, handle->var_index);
+
+    r->ctx[handle->ctx_index] = cur_ctx;
+
     if (v == NULL || !v->valid) {
         return NULL;
     }
