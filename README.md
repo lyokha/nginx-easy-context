@@ -1,6 +1,8 @@
 nginx-easy-context
 ==================
 
+[![Build Status](https://github.com/lyokha/nginx-easy-context/workflows/CI/badge.svg)](https://github.com/lyokha/nginx-easy-context/actions?query=workflow%3ACI)
+
 Free persistent request contexts.
 
 *Free* means that they are not bound to the Nginx request object and their
