@@ -7,9 +7,16 @@ Free persistent request contexts.
 
 *Free* means that they are not bound to the Nginx request object and their
 number is not anyhow restricted. *Persistent* means that they are not cleared
-upon internal redirections *unlike* the normal Nginx request context. Note that
-*like* the normal Nginx request context, free contexts are not shared between
-the main request and its subrequests.
+upon internal redirections *unlike* the normal Nginx request context.
+
+Note that whether free contexts are shared between the main request and its
+subrequests or not depends on how the subrequests are spawned. Internally, a
+free context is bound to a distinct variable which tracks the context value.
+Normally, variables are shared between the main request and its subrequests
+which means that the contexts are shared too. However, some modules such as
+*echo-nginx-module* allocate a separate set of variables in subrequests they
+spawn: in this case, the contexts are not shared between the main request and
+its subrequests.
 
 API
 ---
