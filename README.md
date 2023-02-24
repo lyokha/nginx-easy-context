@@ -14,9 +14,8 @@ subrequests or not depends on how the subrequests are spawned. Internally, a
 free context is bound to a distinct variable which tracks the context value.
 Normally, variables are shared between the main request and its subrequests
 which means that the contexts are shared too. However, some modules such as
-*echo-nginx-module* allocate a separate set of variables in subrequests they
-spawn: in this case, the contexts are not shared between the main request and
-its subrequests.
+*echo-nginx-module* allocate a new set of variables in subrequests they spawn,
+and therefore the contexts in these subrequests branch off the main request.
 
 API
 ---
