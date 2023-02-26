@@ -17,8 +17,14 @@ which means that the contexts are shared too. However, some modules such as
 *echo-nginx-module* allocate a new set of variables in subrequests they spawn,
 and therefore the contexts in these subrequests branch off the main request.
 
-API
----
+C API
+-----
+
+Module *ngx_easy_context* is tagged as *MISC* in the build config file. It does
+not expose a module context or any handlers and directives. Instead, the module
+exports a number of C functions to help users build their own modules. In
+directory *test/*, there is a simple HTTP module *test_easy_context* aimed at
+demonstration of how to use module *ngx_easy_context*.
 
 #### Register a request context handle
 
