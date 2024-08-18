@@ -158,6 +158,9 @@ $ ./configure --add-module=/path/to/nginx-easy-context --add-module=/path/to/ngi
 $ make
 ```
 
+The order of the two *--add-module* options matters. Module *nginx-easy-context*
+must go first.
+
 ###### File *nginx.conf*
 
 ```nginx
