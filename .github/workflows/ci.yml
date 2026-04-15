@@ -9,7 +9,7 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        nginx: [1.22.1, 1.24.0, 1.26.3, 1.28.1]
+        nginx: [1.22.1, 1.24.0, 1.26.3, 1.28.3]
         include:
           - experimental: false
           - nginx: head
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Install prove
-        uses: perl-actions/install-with-cpanm@v1.7
+        uses: perl-actions/install-with-cpanm@v2
         with:
           install: "Test::Nginx"
           tests: false
